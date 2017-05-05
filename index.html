@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+<title>Index. storr 1.1.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="Rich FitzJohn">
+
+<link href="css/bootstrap.css" rel="stylesheet">
+<link href="css/bootstrap-responsive.css" rel="stylesheet">
+<link href="css/highlight.css" rel="stylesheet">
+<link href="css/staticdocs.css" rel="stylesheet">
+
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+  </head>
+
+  <body>
+    <div class="navbar">
+  <div class="navbar-inner">
+    <div class="container">
+      <a class="brand" href="#">storr 1.1.0</a>
+      <div class="nav">
+        <ul class="nav">
+          <li><a href="index.html"><i class="icon-home icon-white"></i> Index</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <div class="container">
+      <header>
+        
+      </header>
+      
+      <div class="row">
+  <div class="span8">
+    <h1>storr</h1>
+
+<p><a href="http://www.repostatus.org/#active"><img src="http://www.repostatus.org/badges/latest/active.svg" alt="Project Status: Active - The project has reached a stable, usable state and is being actively developed."/></a>
+<a href="https://travis-ci.org/richfitz/storr"><img src="https://travis-ci.org/richfitz/storr.png?branch=master" alt="Build Status"/></a>
+<a href="https://codecov.io/github/richfitz/storr?branch=master"><img src="https://codecov.io/github/richfitz/storr/coverage.svg?branch=master" alt="codecov.io"/></a>
+<a href="https://cran.r-project.org/package=storr"><img src="http://www.r-pkg.org/badges/version/storr" alt=""/></a></p>
+
+<p>Simple object cacher for R.  <code>storr</code> acts as a very simple key-value store (supporting <code>get</code>/<code>set</code>/<code>del</code> for arbitrary R objects as data).  The actual storage can be transient or persistent, local or distributed without changing the interface.  To allow for distributed access, data is returned by <em>content</em> rather than simply by key (with a key/content lookup step) so that if another process changes the data, <code>storr</code> will retrieve the current version.</p>
+
+<ul>
+<li>Cached in-memory copies that might be faster to retrieve than on-disk/database copies</li>
+<li>Content-addressable storage, storing and retrieving potentially fewer copies of identical data (useful if lookup is slow or over a network) and to make the system somewhat robust in the face of multiple accessing processes</li>
+<li>Fetch from an external source (e.g. website) if a key is not found locally</li>
+<li>Pluggable storage backends - currently
+
+<ul>
+<li>environment (memory)</li>
+<li>rds (disk)</li>
+<li><a href="https://cran.r-project.org/package=DBI">DBI</a> though which you can use:</li>
+<li><a href="https://sqlite.org">SQLite</a> (via <a href="https://cran.r-project.org/package=RSQLite">RSQLite</a>)</li>
+<li><a href="https://postgresql.org">Postgres</a> (via
+<a href="https://cran.r-project.org/package=RPostgreSQL">RPostgresSQL</a> or <a href="https://github.com/rstats-db/RPostgres">RPostgres</a>)</li>
+<li>Redis (via <a href="https://github.com/richfitz/redux">redux</a>)</li>
+<li><a href="https://github.com/seppo0010/rlite">rlite</a> (via <a href="https://github.com/ropensci/rrlite">rrlite</a>)</li>
+</ul></li>
+</ul>
+
+<p><code>storr</code> always goes back to the common storage (database, filesystem, whatever) for the current object to hash mapping, ensuring consistency when using multiple processes.  However, when retrieving or writing the data given a hash we can often avoid accessing the underlying storage.  This means that repeated lookups happen quickly while still being able to reflect changes elsewhere; time savings can be substantial where large objects are being stored.</p>
+
+<h1>Installation</h1>
+
+<p>From CRAN</p>
+
+<pre><code class="r">install.packages(&quot;storr&quot;)
+</code></pre>
+
+<p>or install the development version with</p>
+
+<pre><code>remotes::install_github(&quot;richfitz/storr@develop&quot;, upgrade = FALSE)
+</code></pre>
+
+<h1>Documentation</h1>
+
+<p><code>storr</code> comes with two vignettes:</p>
+
+<ul>
+<li><a href="http://richfitz.github.io/storr/vignettes/storr.html">storr</a> <code>vignette(&quot;storr&quot;)</code> outlines basic use and core implementation details.</li>
+<li><a href="http://richfitz.github.io/storr/vignettes/external.html">external</a> <code>vignette(&quot;external&quot;)</code> shows how to use storr to cache external resources such as files, web resources, etc, using the <code>storr_external</code> object.</li>
+</ul>
+
+
+    <h2>Help topics</h2>
+
+    <h3></h3>
+    
+    
+    <ul class="index">
+        
+      <li>
+        <code><a href="encode64.html">encode64</a></code>(decode64)<br />Base64 encoding and decoding</li>
+            
+      <li>
+        <code><a href="fetch_hook_read.html">fetch_hook_read</a></code><br />Hook to fetch a resource from a file.</li>
+            
+      <li>
+        <code><a href="storr.html">storr</a></code><br />Object cache</li>
+            
+      <li>
+        <code><a href="storr_dbi.html">storr_dbi</a></code>(driver_dbi)<br />DBI storr driver</li>
+            
+      <li>
+        <code><a href="storr_environment.html">storr_environment</a></code>(driver_environment)<br />Environment object cache driver</li>
+            
+      <li>
+        <code><a href="storr_external.html">storr_external</a></code><br />Storr that kooks for external resources</li>
+            
+      <li>
+        <code><a href="storr_rds.html">storr_rds</a></code>(driver_rds)<br />rds object cache driver</li>
+            
+      <li>
+        <code><a href="storr_redis_api.html">storr_redis_api</a></code>(driver_redis_api)<br />Redis object cache driver</li>
+            
+      <li>
+        <code><a href="test_driver.html">test_driver</a></code><br />Test a storr driver</li>
+    
+    </ul>
+  </div>
+  
+  <div class="span3 offset1">
+    <h2>Vignettes</h2>
+    <ul>
+      <li><a href="vignettes/external.html">external</a></li>
+      <li><a href="vignettes/storr.html">storr</a></li>
+    </ul>
+        
+    <h2>Dependencies</h2>
+    <ul>
+      
+      <li><strong>Imports</strong>: R6, digest</li>
+      <li><strong>Suggests</strong>: DBI, RSQLite, knitr, mockr, rbenchmark, testthat</li>
+      
+    </ul>
+    <h2>Authors</h2>
+    <ul>
+    </ul>
+
+  </div>
+</div>
+      
+      <footer>
+      <p class="pull-right"><a href="#">Back to top</a></p>
+<p>Built by <a href="https://github.com/hadley/staticdocs">staticdocs</a>. Styled with <a href="http://twitter.github.com/bootstrap">bootstrap</a>.</p>
+      </footer>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+<title>storr_environment. storr 1.1.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="">
+
+<link href="css/bootstrap.css" rel="stylesheet">
+<link href="css/bootstrap-responsive.css" rel="stylesheet">
+<link href="css/highlight.css" rel="stylesheet">
+<link href="css/staticdocs.css" rel="stylesheet">
+
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+  </head>
+
+  <body>
+    <div class="navbar">
+  <div class="navbar-inner">
+    <div class="container">
+      <a class="brand" href="#">storr 1.1.0</a>
+      <div class="nav">
+        <ul class="nav">
+          <li><a href="index.html"><i class="icon-home icon-white"></i> Index</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <div class="container">
+      <header>
+        
+      </header>
+      
+      <h1>Environment object cache driver</h1>
+
+<div class="row">
+  <div class="span8">
+    <h2>Usage</h2>
+    <pre><div>storr_environment(envir&nbsp;=&nbsp;NULL, hash_algorithm&nbsp;=&nbsp;NULL, default_namespace&nbsp;=&nbsp;"objects")</div>
+<div>driver_environment(envir&nbsp;=&nbsp;NULL, hash_algorithm&nbsp;=&nbsp;NULL)</div></pre>
+    
+    <h2>Arguments</h2>
+    <dl>
+      <dt>envir</dt>
+      <dd>The environment to point the storr at.  The default
+creates an new empty environment which is generally the right
+choice.  However, if you want multiple environment storrs
+pointing at the same environment then pass the <code>envir</code>
+argument along.</dd>
+      <dt>hash_algorithm</dt>
+      <dd>Name of the hash algorithm to use.  Possible
+values are "md5", "sha1", and others supported by
+<code><a href='http://www.inside-r.org/packages/cran/digest/docs/digest'>digest</a></code>.  If not given, then we will default to
+"md5".</dd>
+      <dt>default_namespace</dt>
+      <dd>Default namespace (see <code><a href='storr.html'>storr</a></code>).</dd>
+    </dl>
+    
+    <div class="Description">
+      <h2>Description</h2>
+
+      <p>Fast but transient environment driver.  This driver saves objects
+in a local R environment, without serialisation.  This makes
+lookup fast but it cannot be saved across sesssions.  The
+environment storr can be made persistent by saving it out as a
+file storr though.</p>
+  
+    </div>
+    
+    <h2 id="examples">Examples</h2>
+    <pre class="examples"><div class='input'>
+# Create an environment and stick some random numbers into it:
+st &lt;- storr_environment()
+st$set(&quot;foo&quot;, runif(10))
+st$get(&quot;foo&quot;)
+</div>
+<div class='output'> [1] 0.8466541 0.1341855 0.9280065 0.2612995 0.2637483 0.5465906 0.8811658
+ [8] 0.2698889 0.8660772 0.6282140
+</div>
+<div class='input'>
+# To make this environment persistent we can save it to disk:
+path &lt;- tempfile()
+st2 &lt;- st$archive_export(path)
+# st2 is now a storr_rds (see ?storr_rds), and will persist across
+# sessions.
+
+# or export to a new list:
+lis &lt;- st$export(list())
+lis
+</div>
+<div class='output'>$foo
+ [1] 0.8466541 0.1341855 0.9280065 0.2612995 0.2637483 0.5465906 0.8811658
+ [8] 0.2698889 0.8660772 0.6282140
+
+</div></pre>
+  </div>
+  <div class="span4">
+    <!-- <ul>
+      <li>driver_environment</li><li>storr_environment</li>
+    </ul>
+    <ul>
+      
+    </ul> -->
+      
+        
+  </div>
+</div>
+      
+      <footer>
+      <p class="pull-right"><a href="#">Back to top</a></p>
+<p>Built by <a href="https://github.com/hadley/staticdocs">staticdocs</a>. Styled with <a href="http://twitter.github.com/bootstrap">bootstrap</a>.</p>
+      </footer>
+    </div>
+  </body>
+</html>

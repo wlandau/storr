@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+<title>fetch_hook_read. storr 1.1.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="">
+
+<link href="css/bootstrap.css" rel="stylesheet">
+<link href="css/bootstrap-responsive.css" rel="stylesheet">
+<link href="css/highlight.css" rel="stylesheet">
+<link href="css/staticdocs.css" rel="stylesheet">
+
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+  </head>
+
+  <body>
+    <div class="navbar">
+  <div class="navbar-inner">
+    <div class="container">
+      <a class="brand" href="#">storr 1.1.0</a>
+      <div class="nav">
+        <ul class="nav">
+          <li><a href="index.html"><i class="icon-home icon-white"></i> Index</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <div class="container">
+      <header>
+        
+      </header>
+      
+      <h1>Hook to fetch a resource from a file.</h1>
+
+<div class="row">
+  <div class="span8">
+    <h2>Usage</h2>
+    <pre><div>fetch_hook_read(fpath, fread)</div></pre>
+    
+    <h2>Arguments</h2>
+    <dl>
+      <dt>fpath</dt>
+      <dd>Function to convert <code>key, namespace</code> into a file
+path</dd>
+      <dt>fread</dt>
+      <dd>Function for converting <code>filename</code> into an R
+pobject</dd>
+    </dl>
+    
+    <div class="Description">
+      <h2>Description</h2>
+
+      <p>Hook to fetch a resource from a file, for use with
+driver_external.  We take two functions as arguments: the first
+converts a key/namespace pair into a filename, and the second
+reads from that filename.  Because many R functions support
+reading from URLs <code>fetch_hook_read</code> can be used to read from
+remote resources.</p>
+  
+    </div>
+
+    <div class="Details">
+      <h2>Details</h2>
+
+      <p>For more information about using this, see
+<code><a href='storr_external.html'>storr_external</a></code> (this can be used as a
+<code>fetch_hook</code> argument) and the vignette:
+<code>vignette("external")</code></p>
+  
+    </div>
+    
+    <h2 id="examples">Examples</h2>
+    <pre class="examples"><div class='input'>hook &lt;- fetch_hook_read(
+    function(key, namespace) paste0(key, &quot;.csv&quot;),
+    function(filename) read.csv(filename, stringsAsFactors = FALSE))
+</div></pre>
+  </div>
+  <div class="span4">
+    <!-- <ul>
+      <li>fetch_hook_read</li>
+    </ul>
+    <ul>
+      
+    </ul> -->
+      
+        
+  </div>
+</div>
+      
+      <footer>
+      <p class="pull-right"><a href="#">Back to top</a></p>
+<p>Built by <a href="https://github.com/hadley/staticdocs">staticdocs</a>. Styled with <a href="http://twitter.github.com/bootstrap">bootstrap</a>.</p>
+      </footer>
+    </div>
+  </body>
+</html>

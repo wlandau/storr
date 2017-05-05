@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+<title>storr_dbi. storr 1.1.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="">
+
+<link href="css/bootstrap.css" rel="stylesheet">
+<link href="css/bootstrap-responsive.css" rel="stylesheet">
+<link href="css/highlight.css" rel="stylesheet">
+<link href="css/staticdocs.css" rel="stylesheet">
+
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+  </head>
+
+  <body>
+    <div class="navbar">
+  <div class="navbar-inner">
+    <div class="container">
+      <a class="brand" href="#">storr 1.1.0</a>
+      <div class="nav">
+        <ul class="nav">
+          <li><a href="index.html"><i class="icon-home icon-white"></i> Index</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <div class="container">
+      <header>
+        
+      </header>
+      
+      <h1>DBI storr driver</h1>
+
+<div class="row">
+  <div class="span8">
+    <h2>Usage</h2>
+    <pre><div>storr_dbi(tbl_data, tbl_keys, con, args&nbsp;=&nbsp;NULL, binary&nbsp;=&nbsp;NULL, hash_algorithm&nbsp;=&nbsp;NULL, default_namespace&nbsp;=&nbsp;"objects")</div>
+<div>driver_dbi(tbl_data, tbl_keys, con, args&nbsp;=&nbsp;NULL, binary&nbsp;=&nbsp;NULL, hash_algorithm&nbsp;=&nbsp;NULL)</div></pre>
+    
+    <h2>Arguments</h2>
+    <dl>
+      <dt>tbl_data</dt>
+      <dd>Name for the table that maps hashes to values</dd>
+      <dt>tbl_keys</dt>
+      <dd>Name for the table that maps keys to hashes</dd>
+      <dt>con</dt>
+      <dd>Either A DBI connection or a DBI driver (see example)</dd>
+      <dt>args</dt>
+      <dd>Arguments to pass, along with the driver, to
+<code>DBI::dbConnect</code> if <code>con</code> is a driver.</dd>
+      <dt>binary</dt>
+      <dd>Optional logical indicating if the values should be
+stored in binary.  If possible, this is both (potentially
+faster) and more accurate.  However, at present it is supported
+only under very recent DBI and RSQLite packages, and for no
+other DBI drivers, and is not actually any faster.  If not given
+(i.e., <code>NULL</code>), then binary storage will be used where
+possible when creating new tables, and where tables exist, we
+use whatever was used in the existing tables.</dd>
+      <dt>hash_algorithm</dt>
+      <dd>Name of the hash algorithm to use.  Possible
+values are "md5", "sha1", and others supported by
+<code><a href='http://www.inside-r.org/packages/cran/digest/docs/digest'>digest</a></code>.  If not given, then we will default to
+"md5".</dd>
+      <dt>default_namespace</dt>
+      <dd>Default namespace (see
+<code><a href='storr.html'>storr</a></code>).</dd>
+    </dl>
+    
+    <div class="Description">
+      <h2>Description</h2>
+
+      <p>Object cache driver using the "DBI" package interface for storage.
+This means that storr can work for any supported "DBI" driver
+(though practically this works only for SQLite and Postgres until
+some MySQL dialect translation is done).  To connect, you must
+provide the <em>driver</em> object (e.g., <code>RSQLite::SQLite()</code>,
+<code>RPostgreSQL::PostgreSQL()</code>, <code>RPostgres::Postgres()</code> as
+the first argument,</p>
+  
+    </div>
+
+    <div class="Details">
+      <h2>Details</h2>
+
+      <p>Because the DBI package
+specifies a uniform interface for the using DBI compliant
+databases, you need only to provide a connection object.  storr
+does not do anything to help create the connection object itself.</p>
+  
+      <p>The DBI storr driver works by using two tables; one mapping keys
+to hashes, and one mapping hashes to values.  Two table names need
+to be provided here; they must be different and they should be
+treated as opaque (don't use them for anything else - reading or
+writing).  Apart from that the names do not matter.</p>
+  
+      <p>Because of treatment of binary data by the underlying DBI drivers,
+binary serialistion is not any faster (and might be slightly
+slower than) string serialisation, in contrast with my experience
+with other backends.</p>
+  
+      <p>Be aware that <code>$destroy()</code> will close the connection to the
+database.</p>
+  
+    </div>
+    
+    <h2 id="examples">Examples</h2>
+    <pre class="examples"><div class='input'>if (requireNamespace(&quot;RSQLite&quot;, quietly = TRUE)) {
+  st &lt;- storr::storr_dbi(&quot;tblData&quot;, &quot;tblKeys&quot;, RSQLite::SQLite(),
+                         &quot;:memory:&quot;)
+
+  # Set some data:
+  st$set(&quot;foo&quot;, runif(10))
+  st$list()
+
+  # And retrieve the data:
+  st$get(&quot;foo&quot;)
+
+  # These are the data tables; treat these as read only
+  DBI::dbListTables(st$driver$con)
+
+  # With recent RSQLite you&#39;ll get binary storage here:
+  st$driver$binary
+
+  # The entire storr part of the database can be removed using
+  # &quot;destroy&quot;; this will also close the connection to the database
+  st$destroy()
+
+  # If you have a connection you want to reuse (which will the the
+  # case if you are using an in-memory SQLite database for
+  # multiple things within an application) it may be useful to
+  # pass the connection object instead of the driver:
+  con &lt;- DBI::dbConnect(RSQLite::SQLite(), &quot;:memory:&quot;)
+  st &lt;- storr::storr_dbi(&quot;tblData&quot;, &quot;tblKeys&quot;, con)
+  st$set(&quot;foo&quot;, runif(10))
+
+  # You can then connect a different storr to the same underlying
+  # storage
+  st2 &lt;- storr::storr_dbi(&quot;tblData&quot;, &quot;tblKeys&quot;, con)
+  st2$get(&quot;foo&quot;)
+}
+</div>
+<div class='output'> [1] 0.92330836 0.33885500 0.24692255 0.42994725 0.45877840 0.08227723
+ [7] 0.44099281 0.83970465 0.48784438 0.23663395
+</div></pre>
+  </div>
+  <div class="span4">
+    <!-- <ul>
+      <li>driver_dbi</li><li>storr_dbi</li>
+    </ul>
+    <ul>
+      
+    </ul> -->
+      
+        
+  </div>
+</div>
+      
+      <footer>
+      <p class="pull-right"><a href="#">Back to top</a></p>
+<p>Built by <a href="https://github.com/hadley/staticdocs">staticdocs</a>. Styled with <a href="http://twitter.github.com/bootstrap">bootstrap</a>.</p>
+      </footer>
+    </div>
+  </body>
+</html>

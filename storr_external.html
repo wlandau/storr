@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+<title>storr_external. storr 1.1.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="">
+
+<link href="css/bootstrap.css" rel="stylesheet">
+<link href="css/bootstrap-responsive.css" rel="stylesheet">
+<link href="css/highlight.css" rel="stylesheet">
+<link href="css/staticdocs.css" rel="stylesheet">
+
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+  </head>
+
+  <body>
+    <div class="navbar">
+  <div class="navbar-inner">
+    <div class="container">
+      <a class="brand" href="#">storr 1.1.0</a>
+      <div class="nav">
+        <ul class="nav">
+          <li><a href="index.html"><i class="icon-home icon-white"></i> Index</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <div class="container">
+      <header>
+        
+      </header>
+      
+      <h1>Storr that kooks for external resources</h1>
+
+<div class="row">
+  <div class="span8">
+    <h2>Usage</h2>
+    <pre><div>storr_external(storage_driver, fetch_hook, default_namespace&nbsp;=&nbsp;"objects")</div></pre>
+    
+    <h2>Arguments</h2>
+    <dl>
+      <dt>storage_driver</dt>
+      <dd>Another <code>storr</code> driver to handle the
+actual storage.</dd>
+      <dt>fetch_hook</dt>
+      <dd>A function to run to fetch data when a key is
+not found in the store.  This function must take arguments
+<code>key</code> and <code>namespace</code> and return an R object.  It must
+throw an error if the external resource cannot be resolved.</dd>
+      <dt>default_namespace</dt>
+      <dd>Default namespace (see
+<code><a href='storr.html'>storr</a></code>)</dd>
+    </dl>
+    
+    <div class="Description">
+      <h2>Description</h2>
+
+      <p>storr for fetching external resources.  This driver is used where
+will try to fetch from an external data source if a resource can
+not be found locally.  This works by checking to see if a key is
+present in the storr (and if so returning it).  If it is not
+found, then the function <code>fetch_hook</code> is run to fetch it.</p>
+  
+    </div>
+
+    <div class="Details">
+      <h2>Details</h2>
+
+      <p>See the vignette <code>vignette("external")</code> for much more detail.
+This function is likely most useful for things like caching
+resources from websites, or computing long-running quantities on
+demand.</p>
+  
+    </div>
+      </div>
+  <div class="span4">
+    <!-- <ul>
+      <li>storr_external</li>
+    </ul>
+    <ul>
+      
+    </ul> -->
+      
+        
+  </div>
+</div>
+      
+      <footer>
+      <p class="pull-right"><a href="#">Back to top</a></p>
+<p>Built by <a href="https://github.com/hadley/staticdocs">staticdocs</a>. Styled with <a href="http://twitter.github.com/bootstrap">bootstrap</a>.</p>
+      </footer>
+    </div>
+  </body>
+</html>

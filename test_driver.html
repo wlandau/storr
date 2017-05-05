@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+<title>test_driver. storr 1.1.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="">
+
+<link href="css/bootstrap.css" rel="stylesheet">
+<link href="css/bootstrap-responsive.css" rel="stylesheet">
+<link href="css/highlight.css" rel="stylesheet">
+<link href="css/staticdocs.css" rel="stylesheet">
+
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+  </head>
+
+  <body>
+    <div class="navbar">
+  <div class="navbar-inner">
+    <div class="container">
+      <a class="brand" href="#">storr 1.1.0</a>
+      <div class="nav">
+        <ul class="nav">
+          <li><a href="index.html"><i class="icon-home icon-white"></i> Index</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <div class="container">
+      <header>
+        
+      </header>
+      
+      <h1>Test a storr driver</h1>
+
+<div class="row">
+  <div class="span8">
+    <h2>Usage</h2>
+    <pre><div>test_driver(create)</div></pre>
+    
+    <h2>Arguments</h2>
+    <dl>
+      <dt>create</dt>
+      <dd>A function with one arguments that when run with
+<code>NULL</code> as the argument will create a new driver instance.
+It will also be called with a driver (of the same type) as an
+argument - in this case, you must create a new driver object
+pointing at the same underlying storage (see the examples).
+Depending on your storage model, temporary directories,
+in-memory locations, or random-but-unique prefixes may help
+create isolated locations for the test (the tests assume that a
+storr created with <code>create</code> is entirely empty).</dd>
+    </dl>
+    
+    <div class="Description">
+      <h2>Description</h2>
+
+      <p>Test that a driver passes all storr tests.  This page is only of
+interest to people developing storr drivers; nothing here is
+required for using storr.</p>
+  
+    </div>
+
+    <div class="Details">
+      <h2>Details</h2>
+
+      <p>This will run through a suite of functions to test that a driver
+is likely to behave itself.  As bugs are found they will be added
+to the test suite to guard against regressions.</p>
+  
+      <p>The test suite is included in the package as
+<code>system.file("spec", package = "storr")</code>.</p>
+  
+      <p>The procedure for each test block is:
+<ol>
+<li>Create a new driver by running <code>dr <- create()</code>.
+</li>
+<li>Run a number of tests.
+</li>
+<li>Destroy the driver by running <code>dr$destroy()</code>.
+</li>
+</ol></p>
+  
+      <p>So before running this test suite, make sure this will not harm
+any precious data!</p>
+  
+    </div>
+    
+    <h2 id="examples">Examples</h2>
+    <pre class="examples"><div class='input'>## Testing the environment driver is nice and fast:
+if (requireNamespace(&quot;testthat&quot;)) {
+  create_env &lt;- function(dr = NULL, ...) {
+    driver_environment(dr$envir, ...)
+  }
+  test_driver(create_env)
+}
+</div>
+<div class='output'>drivers [environment]: ......................................................
+export [environment]: ..........................................
+external [environment]: .................
+storr [environment]: .........................................................................................
+</div>
+<strong class='message'>PASS: 0 errors, 0 failures / 202 tests total</strong>
+<div class='output'>
+DONE ===========================================================================
+</div>
+<div class='input'>
+# To test things like the rds driver, I would run:
+## Not run: 
+# if (requireNamespace(&quot;testthat&quot;)) {
+#   create_rds &lt;- function(dr = NULL) {
+#     driver_rds(if (is.null(dr)) tempfile() else dr$path)
+#   }
+#   test_driver(create_rds)
+# }
+# ## End(Not run)
+</div></pre>
+  </div>
+  <div class="span4">
+    <!-- <ul>
+      <li>test_driver</li>
+    </ul>
+    <ul>
+      
+    </ul> -->
+      
+        
+  </div>
+</div>
+      
+      <footer>
+      <p class="pull-right"><a href="#">Back to top</a></p>
+<p>Built by <a href="https://github.com/hadley/staticdocs">staticdocs</a>. Styled with <a href="http://twitter.github.com/bootstrap">bootstrap</a>.</p>
+      </footer>
+    </div>
+  </body>
+</html>

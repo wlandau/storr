@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+<title>storr. storr 1.1.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="">
+
+<link href="css/bootstrap.css" rel="stylesheet">
+<link href="css/bootstrap-responsive.css" rel="stylesheet">
+<link href="css/highlight.css" rel="stylesheet">
+<link href="css/staticdocs.css" rel="stylesheet">
+
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+  </head>
+
+  <body>
+    <div class="navbar">
+  <div class="navbar-inner">
+    <div class="container">
+      <a class="brand" href="#">storr 1.1.0</a>
+      <div class="nav">
+        <ul class="nav">
+          <li><a href="index.html"><i class="icon-home icon-white"></i> Index</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <div class="container">
+      <header>
+        
+      </header>
+      
+      <h1>Object cache</h1>
+
+<div class="row">
+  <div class="span8">
+    <h2>Usage</h2>
+    <pre><div>storr(driver, default_namespace&nbsp;=&nbsp;"objects")</div></pre>
+    
+    <h2>Arguments</h2>
+    <dl>
+      <dt>driver</dt>
+      <dd>A driver object</dd>
+      <dt>default_namespace</dt>
+      <dd>Default namespace to store objects in.
+By default <code>"objects"</code> is used, but this might be useful to
+have two diffent <code>storr</code> objects pointing at the same
+underlying storage, but storing things in different namespaces.</dd>
+    </dl>
+    
+    <div class="Description">
+      <h2>Description</h2>
+
+      <p>Create an object cache; a "storr".  A storr is a simple key-value
+store where the actual content is stored in a content-addressible
+way (so that duplicate objects are only stored once) and with a
+caching layer so that repeated lookups are fast even if the
+underlying storage driver is slow.</p>
+  
+    </div>
+
+    <div class="Details">
+      <h2>Details</h2>
+
+      <p>To create a storr you need to provide a "driver" object.  There
+are four in the package: <code><a href='storr_environment.html'>driver_environment</a></code> for
+ephemeral in-memory storage, <code><a href='storr_rds.html'>driver_rds</a></code> for
+serialized storage to disk, <code><a href='storr_dbi.html'>driver_dbi</a></code> for use with
+DBI-compliant database interfaces, and
+<code><a href='storr_redis_api.html'>driver_redis_api</a></code> which stores data in Redis but
+requires packages that are not on CRAN to function
+(<a href = 'https://github.com/ropensci/rrlite'>rrlite</a> or
+<a href = 'https://github.com/richfitz/redux'>redux</a>)</p>
+  
+      <p>There are convenience functions (e.g.,
+<code><a href='storr_environment.html'>storr_environment</a></code> and <code><a href='storr_rds.html'>storr_rds</a></code>) that
+may be more convenient to use than this function.</p>
+  
+      <p>Once a storr has been made it provides a number of methods.
+Because storr uses <code>R6</code> (<code><a href='http://www.inside-r.org/packages/cran/R6/docs/R6Class'>R6Class</a></code>) objects, each
+method is accessed by using <code>$</code> on a storr object (see the
+examples).  The methods are described below in the "Methods"
+section.</p>
+  
+      <p>The <code>default_namespace</code> affects all methods of the storr
+object that refer to namespaces; if a namespace is not given, then
+the action (get, set, del, list, import, export) will affect the
+<code>default_namespace</code>.  By default this is <code>"objects"</code>.</p>
+  
+    </div>
+
+    <div class="Methods">
+      <h2>Methods</h2>
+
+      <p></p>
+  
+      <p><dl>
+<dt><code>destroy</code></dt><dd>
+  Totally destroys the storr by telling the driver to destroy all the data and then deleting the driver.  This will remove all data and cannot be undone.</p>
+  
+      <p><em>Usage:</em>
+  <code>destroy()</code>
+</dd></p>
+  
+      <p><dt><code>flush_cache</code></dt><dd>
+  Flush the temporary cache of objects that accumulates as the storr is used.  Should not need to be called often.</p>
+  
+      <p><em>Usage:</em>
+  <code>flush_cache()</code>
+</dd></p>
+  
+      <p><dt><code>set</code></dt><dd>
+  Set a key to a value.</p>
+  
+      <p><em>Usage:</em>
+  <code>set(key, value, namespace = self$default_namespace, use_cache = TRUE)</code></p>
+  
+      <p><em>Arguments:</em>
+  <ul>
+<li><code>key</code>:   The key name.  Can be any string.</p>
+  
+      <p></li>
+<li><code>value</code>:   Any R object to store.  The object will generally be serialized (this is not actually true for the environment storr) so only objects that would usually be expected to survive a <code>saveRDS</code>/<code>readRDS</code> roundtrip will work.  This excludes Rcpp modules objects, external pointers, etc.  But any "normal" R object will work fine.</p>
+  
+      <p></li>
+<li><code>namespace</code>:   An optional namespace.  By default the default namespace that the storr was created with will be used (by default that is "objects").  Different namespaces allow different types of objects to be stored without risk of names colliding.  Use of namespaces is optional, but if used they must be a string.</p>
+  
+      <p></li>
+<li><code>use_cache</code>:   Use the internal cache to avoid reading or writing to the underlying storage if the data has already been seen (i.e., we have seen the hash of the object before).</p>
+  
+      <p></li>
+</ul></p>
+  
+      <p><em>Value</em>:
+  Invisibly, the hash of the saved object.
+</dd></p>
+  
+      <p><dt><code>set_by_value</code></dt><dd>
+  Like <code>set</code> but saves the object with a key that is the same as the hash of the object.  Equivalent to <code>$set(digest::digest(value), value)</code>.</p>
+  
+      <p><em>Usage:</em>
+  <code>set_by_value(value, namespace = self$default_namespace, use_cache = TRUE)</code></p>
+  
+      <p><em>Arguments:</em>
+  <ul>
+<li><code>value</code>:   An R object to save, with the same limitations as <code>set</code>.</p>
+  
+      <p></li>
+<li><code>namespace</code>:   Optional namespace to save the key into.</p>
+  
+      <p></li>
+<li><code>use_cache</code>:   Use the internal cache to avoid reading or writing to the underlying storage if the data has already been seen (i.e., we have seen the hash of the object before).</p>
+  
+      <p></li>
+</ul></p>
+  
+      <p></dd></p>
+  
+      <p><dt><code>get</code></dt><dd>
+  Retrieve an object from the storr.  If the requested value is not found then a <code>KeyError</code> will be raised (an R error, but can be caught with <code>tryCatch</code>; see the "storr" vignette).</p>
+  
+      <p><em>Usage:</em>
+  <code>get(key, namespace = self$default_namespace, use_cache = TRUE)</code></p>
+  
+      <p><em>Arguments:</em>
+  <ul>
+<li><code>key</code>:   The name of the key to get.</p>
+  
+      <p></li>
+<li><code>namespace</code>:   Optional namespace to look for the key within.</p>
+  
+      <p></li>
+<li><code>use_cache</code>:   Use the internal cache to avoid reading or writing to the underlying storage if the data has already been seen (i.e., we have seen the hash of the object before).</p>
+  
+      <p></li>
+</ul></p>
+  
+      <p></dd></p>
+  
+      <p><dt><code>get_hash</code></dt><dd>
+  Retrieve the hash of an object stored in the storr (rather than the object itself).</p>
+  
+      <p><em>Usage:</em>
+  <code>get_hash(key, namespace = self$default_namespace)</code></p>
+  
+      <p><em>Arguments:</em>
+  <ul>
+<li><code>key</code>:   The name of the key to get.</p>
+  
+      <p></li>
+<li><code>namespace</code>:   Optional namespace to look for the key within.</p>
+  
+      <p></li>
+</ul></p>
+  
+      <p></dd></p>
+  
+      <p><dt><code>del</code></dt><dd>
+  Delete an object fom the storr.</p>
+  
+      <p><em>Usage:</em>
+  <code>del(key, namespace = self$default_namespace)</code></p>
+  
+      <p><em>Arguments:</em>
+  <ul>
+<li><code>key</code>:   A vector of names of keys</p>
+  
+      <p></li>
+<li><code>namespace</code>:   The namespace of the key.</p>
+  
+      <p></li>
+</ul></p>
+  
+      <p><em>Value</em>:
+  A logical vector the same length as the recycled length of key/namespace, with each element being <code>TRUE</code> if an object was deleted, <code>FALSE</code> otherwise.
+</dd></p>
+  
+      <p><dt><code>clear</code></dt><dd>
+  Clear a storr.  This function might be slow as it will iterate over each key.  Future versions of storr might allow drivers to implement a bulk clear method that will allow faster clearing.</p>
+  
+      <p><em>Usage:</em>
+  <code>clear(namespace = self$default_namespace)</code></p>
+  
+      <p><em>Arguments:</em>
+  <ul>
+<li><code>namespace</code>:   A namespace, to clear a single namespace, or <code>NULL</code> to clear all namespaces.</p>
+  
+      <p></li>
+</ul></p>
+  
+      <p></dd></p>
+  
+      <p><dt><code>exists</code></dt><dd>
+  Test if a key exists within a namespace</p>
+  
+      <p><em>Usage:</em>
+  <code>exists(key, namespace = self$default_namespace)</code></p>
+  
+      <p><em>Arguments:</em>
+  <ul>
+<li><code>key</code>:   A vector of names of keys</p>
+  
+      <p></li>
+<li><code>namespace</code>:   The namespace of the key.</p>
+  
+      <p></li>
+</ul></p>
+  
+      <p><em>Value</em>:
+  A logical vector the same length as the recycled length of key/namespace, with each element being <code>TRUE</code> if the object exists and <code>FALSE</code> otherwise.
+</dd></p>
+  
+      <p><dt><code>exists_object</code></dt><dd>
+  Test if an object with a given hash exists within the storr</p>
+  
+      <p><em>Usage:</em>
+  <code>exists_object(hash)</code></p>
+  
+      <p><em>Arguments:</em>
+  <ul>
+<li><code>hash</code>:   Hash to test</p>
+  
+      <p></li>
+</ul></p>
+  
+      <p></dd></p>
+  
+      <p><dt><code>mset</code></dt><dd>
+  Set multiple elements at once</p>
+  
+      <p><em>Usage:</em>
+  <code>mset(key, value, namespace = self$default_namespace, use_cache = TRUE)</code></p>
+  
+      <p><em>Arguments:</em>
+  <ul>
+<li><code>key</code>:   A vector of keys to get; zero to many valid keys</p>
+  
+      <p></li>
+<li><code>value</code>:   A vector of values</p>
+  
+      <p></li>
+<li><code>namespace</code>:   A vector of namespaces (either a single namespace or a vector)</p>
+  
+      <p></li>
+<li><code>use_cache</code>:   Use the internal cache to avoid reading or writing to the underlying storage if the data has already been seen (i.e., we have seen the hash of the object before).</p>
+  
+      <p></li>
+</ul></p>
+  
+      <p><em>Details:</em>
+  The arguments <code>key</code> and <code>namespace</code> are recycled such that either can be given as a scalar if the other is a vector. Other recycling is not allowed.
+</dd></p>
+  
+      <p><dt><code>mget</code></dt><dd>
+  Get multiple elements at once</p>
+  
+      <p><em>Usage:</em>
+  <code>mget(key, namespace = self$default_namespace, use_cache = TRUE,
+      missing = NULL)</code></p>
+  
+      <p><em>Arguments:</em>
+  <ul>
+<li><code>key</code>:   A vector of keys to get; zero to many valid keys</p>
+  
+      <p></li>
+<li><code>namespace</code>:   A vector of namespaces (either a single namespace or a vector)</p>
+  
+      <p></li>
+<li><code>use_cache</code>:   Use the internal cache to avoid reading or writing to the underlying storage if the data has already been seen (i.e., we have seen the hash of the object before).</p>
+  
+      <p></li>
+<li><code>missing</code>:   Value to use for missing elements; by default <code>NULL</code> will be used.  IF <code>NULL</code> is a value that you might have stored in the storr you might want to use a different value here to distinguish "missing" from "set to NULL".  In addition, the <code>missing</code> attribute will indicate which values were missing.</p>
+  
+      <p></li>
+</ul></p>
+  
+      <p><em>Details:</em>
+  The arguments <code>key</code> and <code>namespace</code> are recycled such that either can be given as a scalar if the other is a vector. Other recycling is not allowed.</p>
+  
+      <p><em>Value</em>:
+  A list with a length of the recycled length of <code>key</code> and <code>namespace</code>.  If any elements are missing, then an attribute <code>missing</code> will indicate the elements that are missing (this will be an integer vector with the indices of values were not found in the storr).
+</dd></p>
+  
+      <p><dt><code>mset_by_value</code></dt><dd>
+  Set multiple elements at once, by value.  A cross between <code>mset</code> and <code>set_by_value</code>.</p>
+  
+      <p><em>Usage:</em>
+  <code>mset_by_value(value, namespace = self$default_namespace, use_cache = TRUE)</code></p>
+  
+      <p><em>Arguments:</em>
+  <ul>
+<li><code>value</code>:   A list or vector of values to set into the storr.</p>
+  
+      <p></li>
+<li><code>namespace</code>:   A vector of namespaces</p>
+  
+      <p></li>
+<li><code>use_cache</code>:   Use the internal cache to avoid reading or writing to the underlying storage if the data has already been seen (i.e., we have seen the hash of the object before).</p>
+  
+      <p></li>
+</ul></p>
+  
+      <p></dd></p>
+  
+      <p><dt><code>gc</code></dt><dd>
+  Garbage collect the storr.  Because keys do not directly map to objects, but instead map to hashes which map to objects, it is possible that hash/object pairs can persist with nothing pointing at them.  Running <code>gc</code> will remove these objects from the storr.</p>
+  
+      <p><em>Usage:</em>
+  <code>gc()</code>
+</dd></p>
+  
+      <p><dt><code>get_value</code></dt><dd>
+  Get the content of an object given its hash.</p>
+  
+      <p><em>Usage:</em>
+  <code>get_value(hash, use_cache = TRUE)</code></p>
+  
+      <p><em>Arguments:</em>
+  <ul>
+<li><code>hash</code>:   The hash of the object to retrieve.</p>
+  
+      <p></li>
+<li><code>use_cache</code>:   Use the internal cache to avoid reading or writing to the underlying storage if the data has already been seen (i.e., we have seen the hash of the object before).</p>
+  
+      <p></li>
+</ul></p>
+  
+      <p><em>Value</em>:
+  The object if it is present, otherwise throw a <code>HashError</code>.
+</dd></p>
+  
+      <p><dt><code>set_value</code></dt><dd>
+  Add an object value, but don't add a key.  You will not need to use this very often, but it is used internally.</p>
+  
+      <p><em>Usage:</em>
+  <code>set_value(value, use_cache = TRUE)</code></p>
+  
+      <p><em>Arguments:</em>
+  <ul>
+<li><code>value</code>:   An R object to set.</p>
+  
+      <p></li>
+<li><code>use_cache</code>:   Use the internal cache to avoid reading or writing to the underlying storage if the data has already been seen (i.e., we have seen the hash of the object before).</p>
+  
+      <p></li>
+</ul></p>
+  
+      <p><em>Value</em>:
+  Invisibly, the hash of the object.
+</dd></p>
+  
+      <p><dt><code>mset_value</code></dt><dd>
+  Add a vector of object values, but don't add keys.  You will not need to use this very often, but it is used internally.</p>
+  
+      <p><em>Usage:</em>
+  <code>mset_value(values, use_cache = TRUE)</code></p>
+  
+      <p><em>Arguments:</em>
+  <ul>
+<li><code>values</code>:   A list of R objects to set</p>
+  
+      <p></li>
+<li><code>use_cache</code>:   Use the internal cache to avoid reading or writing to the underlying storage if the data has already been seen (i.e., we have seen the hash of the object before).</p>
+  
+      <p></li>
+</ul></p>
+  
+      <p></dd></p>
+  
+      <p><dt><code>list</code></dt><dd>
+  List all keys stored in a namespace.</p>
+  
+      <p><em>Usage:</em>
+  <code>list(namespace = self$default_namespace)</code></p>
+  
+      <p><em>Arguments:</em>
+  <ul>
+<li><code>namespace</code>:   The namespace to list keys within.</p>
+  
+      <p></li>
+</ul></p>
+  
+      <p><em>Value</em>:
+  A sorted character vector (possibly zero-length).
+</dd></p>
+  
+      <p><dt><code>list_hashes</code></dt><dd>
+  List all hashes stored in the storr</p>
+  
+      <p><em>Usage:</em>
+  <code>list_hashes()</code></p>
+  
+      <p><em>Value</em>:
+  A sorted character vector (possibly zero-length).
+</dd></p>
+  
+      <p><dt><code>list_namespaces</code></dt><dd>
+  List all namespaces known to the database</p>
+  
+      <p><em>Usage:</em>
+  <code>list_namespaces()</code></p>
+  
+      <p><em>Value</em>:
+  A sorted character vector (possibly zero-length).
+</dd></p>
+  
+      <p><dt><code>import</code></dt><dd>
+  Import R objects from an environment.</p>
+  
+      <p><em>Usage:</em>
+  <code>import(src, list = NULL, namespace = self$default_namespace,
+      skip_missing = FALSE)</code></p>
+  
+      <p><em>Arguments:</em>
+  <ul>
+<li><code>src</code>:   Object to import objects from; can be a list, environment or another storr.</p>
+  
+      <p></li>
+<li><code>list</code>:   Names of of objects to import (or <code>NULL</code> to import all objects in <code>envir</code>.  If given it must be a character vector.  If named, the names of the character vector will be the names of the objects as created in the storr.</p>
+  
+      <p></li>
+<li><code>namespace</code>:   Namespace to get objects from, and to put objects into.  If <code>NULL</code>, all namespaces from <code>src</code> will be imported. If named, then the same rule is followed as <code>list</code>; <code>namespace = c(a = b)</code> will import the contents of namespace <code>b</code> as namespace <code>a</code>.</p>
+  
+      <p></li>
+<li><code>skip_missing</code>:   Logical, indicating if missing keys (specified in <code>list</code>) should be skipped over, rather than being treated as an error (the default).</p>
+  
+      <p></li>
+</ul></p>
+  
+      <p></dd></p>
+  
+      <p><dt><code>export</code></dt><dd>
+  Export objects from the storr into something else.</p>
+  
+      <p><em>Usage:</em>
+  <code>export(dest, list = NULL, namespace = self$default_namespace,
+      skip_missing = FALSE)</code></p>
+  
+      <p><em>Arguments:</em>
+  <ul>
+<li><code>dest</code>:   A target destination to export objects to; can be a list, environment, or another storr.  Use <code>list()</code> to export to a brand new list, or use <code>as.list(object)</code> for a shorthand.</p>
+  
+      <p></li>
+<li><code>list</code>:   Names of objects to export, with the same rules as <code>list</code> in <code>$import</code>.</p>
+  
+      <p></li>
+<li><code>namespace</code>:   Namespace to get objects from, and to put objects into.  If <code>NULL</code>, then this will export namespaces from this (source) storr into the destination; if there is more than one namespace,this is only possible if <code>dest</code> is a storr (otherwise there will be an error).</p>
+  
+      <p></li>
+<li><code>skip_missing</code>:   Logical, indicating if missing keys (specified in <code>list</code>) should be skipped over, rather than being treated as an error (the default).</p>
+  
+      <p></li>
+</ul></p>
+  
+      <p><em>Value</em>:
+  Invisibly, <code>dest</code>, which allows use of <code>e <- st$export(new.env())</code> and <code>x <- st$export(list())</code>.
+</dd></p>
+  
+      <p><dt><code>archive_export</code></dt><dd>
+  Export objects from the storr into a special "archive" storr, which is an <code><a href='storr_rds.html'>storr_rds</a></code> with name mangling turned on (which encodes keys with base64 so that they do not voilate filesystem naming conventions).</p>
+  
+      <p><em>Usage:</em>
+  <code>archive_export(path, names = NULL, namespace = NULL)</code></p>
+  
+      <p><em>Arguments:</em>
+  <ul>
+<li><code>path</code>:   Path to create the storr at; can exist already.</p>
+  
+      <p></li>
+<li><code>names</code>:   As for <code>$export</code></p>
+  
+      <p></li>
+<li><code>namespace</code>:   Namespace to get objects from.  If <code>NULL</code>, then exports all namespaces found in this (source) storr.</p>
+  
+      <p></li>
+</ul></p>
+  
+      <p></dd></p>
+  
+      <p><dt><code>archive_import</code></dt><dd>
+  Inverse of <code>archive_export</code>; import objects from a storr that was created by <code>archive_export</code>.</p>
+  
+      <p><em>Usage:</em>
+  <code>archive_import(path, names = NULL, namespace = NULL)</code></p>
+  
+      <p><em>Arguments:</em>
+  <ul>
+<li><code>path</code>:   Path of the exported storr.</p>
+  
+      <p></li>
+<li><code>names</code>:   As for <code>$import</code></p>
+  
+      <p></li>
+<li><code>namespace</code>:   Namespace to import objects into.  If <code>NULL</code>, then imports al namespaces from the source storr.</p>
+  
+      <p></li>
+</ul></p>
+  
+      <p></dd></p>
+  
+      <p></dl></p>
+  
+      <p></p>
+  
+    </div>
+    
+    <h2 id="examples">Examples</h2>
+    <pre class="examples"><div class='input'>st &lt;- storr(driver_environment())
+## Set &quot;mykey&quot; to hold the mtcars dataset:
+st$set(&quot;mykey&quot;, mtcars)
+## and get the object:
+st$get(&quot;mykey&quot;)
+</div>
+<div class='output'>                     mpg cyl  disp  hp drat    wt  qsec vs am gear carb
+Mazda RX4           21.0   6 160.0 110 3.90 2.620 16.46  0  1    4    4
+Mazda RX4 Wag       21.0   6 160.0 110 3.90 2.875 17.02  0  1    4    4
+Datsun 710          22.8   4 108.0  93 3.85 2.320 18.61  1  1    4    1
+Hornet 4 Drive      21.4   6 258.0 110 3.08 3.215 19.44  1  0    3    1
+Hornet Sportabout   18.7   8 360.0 175 3.15 3.440 17.02  0  0    3    2
+Valiant             18.1   6 225.0 105 2.76 3.460 20.22  1  0    3    1
+Duster 360          14.3   8 360.0 245 3.21 3.570 15.84  0  0    3    4
+Merc 240D           24.4   4 146.7  62 3.69 3.190 20.00  1  0    4    2
+Merc 230            22.8   4 140.8  95 3.92 3.150 22.90  1  0    4    2
+Merc 280            19.2   6 167.6 123 3.92 3.440 18.30  1  0    4    4
+Merc 280C           17.8   6 167.6 123 3.92 3.440 18.90  1  0    4    4
+Merc 450SE          16.4   8 275.8 180 3.07 4.070 17.40  0  0    3    3
+Merc 450SL          17.3   8 275.8 180 3.07 3.730 17.60  0  0    3    3
+Merc 450SLC         15.2   8 275.8 180 3.07 3.780 18.00  0  0    3    3
+Cadillac Fleetwood  10.4   8 472.0 205 2.93 5.250 17.98  0  0    3    4
+Lincoln Continental 10.4   8 460.0 215 3.00 5.424 17.82  0  0    3    4
+Chrysler Imperial   14.7   8 440.0 230 3.23 5.345 17.42  0  0    3    4
+Fiat 128            32.4   4  78.7  66 4.08 2.200 19.47  1  1    4    1
+Honda Civic         30.4   4  75.7  52 4.93 1.615 18.52  1  1    4    2
+Toyota Corolla      33.9   4  71.1  65 4.22 1.835 19.90  1  1    4    1
+Toyota Corona       21.5   4 120.1  97 3.70 2.465 20.01  1  0    3    1
+Dodge Challenger    15.5   8 318.0 150 2.76 3.520 16.87  0  0    3    2
+AMC Javelin         15.2   8 304.0 150 3.15 3.435 17.30  0  0    3    2
+Camaro Z28          13.3   8 350.0 245 3.73 3.840 15.41  0  0    3    4
+Pontiac Firebird    19.2   8 400.0 175 3.08 3.845 17.05  0  0    3    2
+Fiat X1-9           27.3   4  79.0  66 4.08 1.935 18.90  1  1    4    1
+Porsche 914-2       26.0   4 120.3  91 4.43 2.140 16.70  0  1    5    2
+Lotus Europa        30.4   4  95.1 113 3.77 1.513 16.90  1  1    5    2
+Ford Pantera L      15.8   8 351.0 264 4.22 3.170 14.50  0  1    5    4
+Ferrari Dino        19.7   6 145.0 175 3.62 2.770 15.50  0  1    5    6
+Maserati Bora       15.0   8 301.0 335 3.54 3.570 14.60  0  1    5    8
+Volvo 142E          21.4   4 121.0 109 4.11 2.780 18.60  1  1    4    2
+</div>
+<div class='input'>## List known keys:
+st$list()
+</div>
+<div class='output'>[1] &quot;mykey&quot;
+</div>
+<div class='input'>## List hashes
+st$list_hashes()
+</div>
+<div class='output'>[1] &quot;a63c70e73b58d0823ab3bcbd3b543d6f&quot;
+</div>
+<div class='input'>## List keys in another namespace:
+st$list(&quot;namespace2&quot;)
+</div>
+<div class='output'>character(0)
+</div>
+<div class='input'>## We can store things in other namespaces:
+st$set(&quot;x&quot;, mtcars, &quot;namespace2&quot;)
+st$set(&quot;y&quot;, mtcars, &quot;namespace2&quot;)
+st$list(&quot;namespace2&quot;)
+</div>
+<div class='output'>[1] &quot;x&quot; &quot;y&quot;
+</div>
+<div class='input'>## Duplicate data do not cause duplicate storage: despite having three
+## keys we only have one bit of data:
+st$list_hashes()
+</div>
+<div class='output'>[1] &quot;a63c70e73b58d0823ab3bcbd3b543d6f&quot;
+</div>
+<div class='input'>st$del(&quot;mykey&quot;)
+
+## Storr objects can be created that have a default namespace that is
+## not &quot;objects&quot; by using the \code{default_namespace} argument (this
+## one also points at the same memory as the first storr).
+st2 &lt;- storr(driver_environment(st$driver$envir),
+             default_namespace = &quot;namespace2&quot;)
+## All functions now use &quot;namespace2&quot; as the default namespace:
+st2$list()
+</div>
+<div class='output'>[1] &quot;x&quot; &quot;y&quot;
+</div>
+<div class='input'>st2$del(&quot;x&quot;)
+st2$del(&quot;y&quot;)
+</div></pre>
+  </div>
+  <div class="span4">
+    <!-- <ul>
+      <li>storr</li>
+    </ul>
+    <ul>
+      
+    </ul> -->
+      
+        
+  </div>
+</div>
+      
+      <footer>
+      <p class="pull-right"><a href="#">Back to top</a></p>
+<p>Built by <a href="https://github.com/hadley/staticdocs">staticdocs</a>. Styled with <a href="http://twitter.github.com/bootstrap">bootstrap</a>.</p>
+      </footer>
+    </div>
+  </body>
+</html>

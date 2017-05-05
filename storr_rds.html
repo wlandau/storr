@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+<title>storr_rds. storr 1.1.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="">
+
+<link href="css/bootstrap.css" rel="stylesheet">
+<link href="css/bootstrap-responsive.css" rel="stylesheet">
+<link href="css/highlight.css" rel="stylesheet">
+<link href="css/staticdocs.css" rel="stylesheet">
+
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+  </head>
+
+  <body>
+    <div class="navbar">
+  <div class="navbar-inner">
+    <div class="container">
+      <a class="brand" href="#">storr 1.1.0</a>
+      <div class="nav">
+        <ul class="nav">
+          <li><a href="index.html"><i class="icon-home icon-white"></i> Index</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <div class="container">
+      <header>
+        
+      </header>
+      
+      <h1>rds object cache driver</h1>
+
+<div class="row">
+  <div class="span8">
+    <h2>Usage</h2>
+    <pre><div>storr_rds(path, compress&nbsp;=&nbsp;NULL, mangle_key&nbsp;=&nbsp;NULL, mangle_key_pad&nbsp;=&nbsp;NULL, hash_algorithm&nbsp;=&nbsp;NULL, default_namespace&nbsp;=&nbsp;"objects")</div>
+<div>driver_rds(path, compress&nbsp;=&nbsp;NULL, mangle_key&nbsp;=&nbsp;NULL, mangle_key_pad&nbsp;=&nbsp;NULL, hash_algorithm&nbsp;=&nbsp;NULL)</div></pre>
+    
+    <h2>Arguments</h2>
+    <dl>
+      <dt>path</dt>
+      <dd>Path for the store.  <code>tempdir()</code> is a good choice
+for ephemeral storage, The <code>rappdirs</code> package (on CRAN)
+might be nice for persistent application data.</dd>
+      <dt>compress</dt>
+      <dd>Compress the generated file?  This saves a small
+amount of space for a reasonable amount of time.</dd>
+      <dt>mangle_key</dt>
+      <dd>Mangle keys?  If TRUE, then the key is encoded
+using base64 before saving to the filesystem.  See Details.</dd>
+      <dt>mangle_key_pad</dt>
+      <dd>Logical indicating if the filenames created
+when using <code>mangle_key</code> should also be "padded" with the
+<code>=</code> character to make up a round number of bytes.  Padding
+is required to satisfy the document that describes base64
+encoding (RFC 4648) but can cause problems in some applications
+(see <a href = 'https://github.com/richfitz/storr/issues/43'>this
+issue</a>.  The default is to not pad <em>new</em> storr archives.
+This should be generally safe to leave alone.</dd>
+      <dt>hash_algorithm</dt>
+      <dd>Name of the hash algorithm to use.  Possible
+values are "md5", "sha1", and others supported by
+<code><a href='http://www.inside-r.org/packages/cran/digest/docs/digest'>digest</a></code>.  If not given, then we will default to
+"md5".</dd>
+      <dt>default_namespace</dt>
+      <dd>Default namespace (see
+<code><a href='storr.html'>storr</a></code>).</dd>
+    </dl>
+    
+    <div class="Description">
+      <h2>Description</h2>
+
+      <p>Object cache driver that saves objects using R's native
+serialized file format (see <code><a href='http://www.inside-r.org/r-doc/base/readRDS'>saveRDS</a></code>) on the
+filesystem.</p>
+  
+    </div>
+
+    <div class="Details">
+      <h2>Details</h2>
+
+      <p>The <code>mangle_key</code> argument will run each key that is created
+through a "base 64" encoding.  This means that keys that include
+symbols that are invalid on filesystems (e.g, "/", ":") will be
+replaced by harmless characters.  The RFC 4648 dialect is used
+where "-" and "_" are used for character 62 and 63 (this differs
+from most R base64 encoders).  This mangling is designed to be
+transparent to the user -- the storr will appear to store things
+with unmangled keys but the names of the stored files will be
+different.</p>
+  
+      <p>Note that the <em>namespace</em> is not mangled (at least not yet)
+so needs to contain characters that are valid in a filename.</p>
+  
+      <p>Because the actual file will be stored with mangled names it is
+not safe to use the same path for a storr with and without
+mangling.  So once an rds storr has been created its "mangledness"
+is set.  Using <code>mangle_key = NULL</code> uses whatever mangledness
+exists (or no mangledness if creating a new storr).</p>
+  
+    </div>
+    
+    <h2 id="examples">Examples</h2>
+    <pre class="examples"><div class='input'>
+# Create an rds storr in R&#39;s temporary directory:
+st &lt;- storr_rds(tempfile())
+
+# Store some data (10 random numbers against the key &quot;foo&quot;)
+st$set(&quot;foo&quot;, runif(10))
+st$list()
+</div>
+<div class='output'>[1] &quot;foo&quot;
+</div>
+<div class='input'>
+# And retrieve the data:
+st$get(&quot;foo&quot;)
+</div>
+<div class='output'> [1] 0.8197683 0.3605700 0.4889752 0.9828561 0.7696261 0.4588505 0.1227658
+ [8] 0.8851281 0.6587385 0.8809187
+</div>
+<div class='input'>
+# Keys that are not valid filenames will cause issues.  This will
+# cause an error:
+## Not run: 
+# st$set(&quot;foo/bar&quot;, letters)
+# ## End(Not run)
+
+# The solution to this is to &quot;mangle&quot; the key names.  Storr can do
+# this for you:
+st2 &lt;- storr_rds(tempfile(), mangle_key = TRUE)
+st2$set(&quot;foo/bar&quot;, letters)
+st2$list()
+</div>
+<div class='output'>[1] &quot;foo/bar&quot;
+</div>
+<div class='input'>st2$get(&quot;foo/bar&quot;)
+</div>
+<div class='output'> [1] &quot;a&quot; &quot;b&quot; &quot;c&quot; &quot;d&quot; &quot;e&quot; &quot;f&quot; &quot;g&quot; &quot;h&quot; &quot;i&quot; &quot;j&quot; &quot;k&quot; &quot;l&quot; &quot;m&quot; &quot;n&quot; &quot;o&quot; &quot;p&quot; &quot;q&quot; &quot;r&quot; &quot;s&quot;
+[20] &quot;t&quot; &quot;u&quot; &quot;v&quot; &quot;w&quot; &quot;x&quot; &quot;y&quot; &quot;z&quot;
+</div>
+<div class='input'>
+# Behind the scenes, storr is safely encoding the filenames with base64:
+dir(file.path(st2$driver$path, &quot;keys&quot;, &quot;objects&quot;))
+</div>
+<div class='output'>[1] &quot;Zm9vL2Jhcg&quot;
+</div>
+<div class='input'>
+# Clean up the two storrs:
+st$destroy()
+st2$destroy()
+</div></pre>
+  </div>
+  <div class="span4">
+    <!-- <ul>
+      <li>driver_rds</li><li>storr_rds</li>
+    </ul>
+    <ul>
+      
+    </ul> -->
+      
+        
+  </div>
+</div>
+      
+      <footer>
+      <p class="pull-right"><a href="#">Back to top</a></p>
+<p>Built by <a href="https://github.com/hadley/staticdocs">staticdocs</a>. Styled with <a href="http://twitter.github.com/bootstrap">bootstrap</a>.</p>
+      </footer>
+    </div>
+  </body>
+</html>
