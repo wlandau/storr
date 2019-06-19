@@ -107,7 +107,7 @@ read_fst_value <- function(path, compress) {
     stop(sprintf("fst file '%s' missing", path))
   }
   out <- fst::read_fst(path)[[1]]
-  if (compress) out <- decompress_fst(out)
+  if (!identical(compress, "none")) out <- decompress_fst(out)
   unserialize(out)
 }
 
@@ -121,7 +121,7 @@ write_fst_value <- function(value, filename, compress,
 try_write_fst_value <- function(value, filename, compress,
                                 scratch_dir = NULL) {
   tmp <- tempfile(tmpdir = scratch_dir %||% tempdir())
-  if (compress) value <- fst::compress_fst(value)
+  if (!identical(compress, "none")) value <- fst::compress_fst(value)
 
   fst::write_fst(structure(list(value = value), class = "data.frame"), tmp)
   file.rename(tmp, filename)
