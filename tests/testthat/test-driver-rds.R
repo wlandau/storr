@@ -139,25 +139,34 @@ test_that("large vector support", {
 })
 
 test_that("compression support", {
+  skip_if_not_installed("fst")
+  
   ## some data that will likely compress very well:
   data <- rep(1:10, each = 500)
 
-  st1 <- storr_rds(tempfile(), TRUE)
-  st2 <- storr_rds(tempfile(), FALSE)
+  st1 <- storr_rds(tempfile(), "gzfile")
+  st2 <- storr_rds(tempfile(), "none")
+  st3 <- storr_rds(tempfile(), "fst")
+  
   on.exit({
     st1$destroy()
     st2$destroy()
+    st3$destroy()
   })
 
-  h1 <- st1$set("data", data)
-  h2 <- st2$set("data", data)
+  h1 <- st1$set("data", data, use_cache = FALSE)
+  h2 <- st2$set("data", data, use_cache = FALSE)
+  h3 <- st3$set("data", data, use_cache = FALSE)
 
-  expect_identical(h1, h2)
+  expect_identical(h1, h2, h3)
   expect_gt(file.size(st2$driver$name_hash(h2)),
             file.size(st1$driver$name_hash(h1)))
+  expect_gt(file.size(st2$driver$name_hash(h2)),
+            file.size(st3$driver$name_hash(h3)))
 
-  expect_identical(st1$get("data"), data)
-  expect_identical(st2$get("data"), data)
+  expect_identical(st1$get("data", use_cache = FALSE), data)
+  expect_identical(st2$get("data", use_cache = FALSE), data)
+  expect_identical(st3$get("data", use_cache = FALSE), data)
 })
 
 test_that("backward compatibility", {
@@ -174,6 +183,29 @@ test_that("backward compatibility", {
   path <- copy_to_tmp("v1.0.1_clear")
   expect_error(storr_rds(path, hash_algorithm = "sha1"),
                "Incompatible value for hash_algorithm")
+})
+
+test_that("backward compatibility: compression", {
+  ## In version 1.2.1 and earlier, the compress argument was a logical scalar.
+  path <- copy_to_tmp("v1.2.1_compress_TRUE")
+  st <- storr_rds(path)
+  expect_equal(st$list(), "key")
+  expect_equal(st$get("key"), "value")
+  expect_silent(st <- storr_rds(path, compress = TRUE))
+  for (compress in list("none", "gzfile", "fst", FALSE)) {
+    expect_error(st <- storr_rds(path, compress = compress),
+                 "Incompatible value for compress")
+  }
+
+  path <- copy_to_tmp("v1.2.1_compress_FALSE")
+  st <- storr_rds(path)
+  expect_equal(st$list(), "key")
+  expect_equal(st$get("key"), "value")
+  expect_silent(st <- storr_rds(path, compress = FALSE))
+  for (compress in list("none", "gzfile", "fst", TRUE)) {
+    expect_error(st <- storr_rds(path, compress = compress),
+                 "Incompatible value for compress")
+  }
 })
 
 test_that("mangledness padding backward compatibility", {
